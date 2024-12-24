@@ -1,7 +1,6 @@
 {
   "name": "@repo/db",
   "version": "1.0.0",
-  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "migrate": "npx prisma migrate dev"
@@ -9,5 +8,11 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "Database folder for the payment app"
+  "description": "Database folder for the payment app",
+  "dependencies": {
+    "@prisma/client": "^6.1.0"
+  },
+  "exports": {
+    "./client": "./index.ts"
+  }
 }
