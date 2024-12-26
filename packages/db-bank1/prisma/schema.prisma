@@ -1,0 +1,43 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+//Bank user model, Not going in deep, It is Just a basic dummy bank
+
+/*
+You never store balance in decimal, In real world it would be a BigInt or a String, Because decimal has precision issues, With the help of BigInt or String you can store the balance in smallest unit of currency. And for decimal transactions you can define a variable that stores scale like 2 for 2 decimal places.
+
+Example :
+balance = 1000
+scale = 2
+actual balance = 10.00
+*/
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  mobileNumber  String   @unique
+  password      UserPassword?
+  accountNumber String   @unique
+  name          String
+  balance       BigInt   @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+// It holds the password of a User, separate from the User model to avoid leaking the password hash
+model UserPassword {
+  hash   String
+  accountNumber String @unique
+  user   User   @relation(fields: [accountNumber], references: [accountNumber], onDelete: Cascade)
+}
