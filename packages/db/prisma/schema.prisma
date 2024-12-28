@@ -15,19 +15,93 @@ datasource db {
 
 //User model
 model User {
-  id            String   @id @default(cuid())
-  email         String   @unique
-  emailVerified DateTime?
-  password      UserPassword?
-  username      String   @unique
-  name          String
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id                  String        @id @default(cuid())
+  mobileNumber        String        @unique
+  mobileVerified      DateTime?
+  email               String        @unique
+  emailVerified       DateTime?
+  password            UserPassword?
+  username            String        @unique
+  name                String
+  walletBalance       BigInt        @default(0)
+  walletPin           WalletPin?
+  isWalletEnabled     Boolean       @default(false)
+  bank                UserBank?
+  isBankLinked        Boolean       @default(false)
+  upiIds              UserUPI[]
+  transactions        Transaction[]
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
 }
 
 // It holds the password of a User, separate from the User model to avoid leaking the password hash
 model UserPassword {
-  hash   String
-  userId String @unique
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  hash      String
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+
+// It holds the wallet pin of a User, separate from the User model to avoid leaking the wallet pin hash
+model WalletPin {
+  hash      String
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// It holds the bank details of a User, separate from the User model to avoid leaking the bank details
+model UserBank {
+  userId        String   @unique
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accountNumber String   @unique
+  bankCode      String   @unique //IFsc code
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+
+// It holds the UPI ids of a User
+model UserUPI {
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  upiId     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+//It holds transactions of the User
+model Transaction {
+  transactionId String              @id @unique
+  type          TransactionType
+  amount        BigInt
+  otherUserId   String // Sender or Receiver's UPI ID
+  userId        String
+  user          User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  direction     TransactionDirection
+  status        TransactionStatus   @default(PENDING)
+  timestamp     DateTime            @default(now())
+}
+
+//Enum for Transaction Type
+enum TransactionType {
+  BANK
+  WALLET
+}
+
+//Enum for Transaction Direction
+enum TransactionDirection {
+  INCOMING
+  OUTGOING
+}
+
+
+//Enum for Transaction Status
+enum TransactionStatus {
+  PENDING
+  SUCCESS
+  FAILED
 }
