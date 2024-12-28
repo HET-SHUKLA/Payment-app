@@ -59,7 +59,7 @@ model UPIId {
   userId      String
   user        UserUPI  @relation(fields: [userId], references: [userId], onDelete: Cascade)
   upi         String   @unique
-  callbackUrl String
+  callbackUrl String   //So when a payment is made to this UPI, the bank can send a callback to this URL, Like google pay, phonepe etc.
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
@@ -69,6 +69,26 @@ model UPIPin {
   hash      String
   userId    String   @unique
   user      UserUPI  @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+
+//It holds details of UPI app that has been registered with the bank
+model UPIApp {
+  id        String   @id @default(cuid())
+  appName   String   @unique
+  secret    String   //Must be encrypted
+  apiKey    APIKey[] //Must be encrypted
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+//It holds API keys of UPI app
+model APIKey {
+  id        String   @unique
+  upiId     UPIApp   @relation(fields: [id], references: [id], onDelete: Cascade)
+  apiKey    String   @unique //Encrypted
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

@@ -86,6 +86,17 @@ model Transaction {
   timestamp     DateTime            @default(now())
 }
 
+
+//It holds data of all the Banks, In encrypted form
+model Bank{
+  bankCode    String   @id @unique
+  apiKey      String   @unique //This must be encrypted
+  secret      String   @unique //This must be encrypted
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+
 //Enum for Transaction Type
 enum TransactionType {
   BANK
