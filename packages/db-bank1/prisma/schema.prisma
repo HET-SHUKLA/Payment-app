@@ -24,20 +24,51 @@ scale = 2
 actual balance = 10.00
 */
 model User {
-  id            String   @id @default(cuid())
-  email         String   @unique
-  mobileNumber  String   @unique
+  id            String        @id @default(cuid())
+  email         String?       @unique
+  mobileNumber  String        @unique
   password      UserPassword?
-  accountNumber String   @unique
+  accountNumber String        @unique
+  userUPI       UserUPI?
   name          String
-  balance       BigInt   @default(0)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  balance       BigInt        @default(0)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
 }
 
 // It holds the password of a User, separate from the User model to avoid leaking the password hash
 model UserPassword {
   hash   String
-  accountNumber String @unique
-  user   User   @relation(fields: [accountNumber], references: [accountNumber], onDelete: Cascade)
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+
+//It holds UPI id of User
+model UserUPI {
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  upis   UPIId[]
+  upiPin UPIPin?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+//It holds UPI ids of User
+model UPIId {
+  userId      String
+  user        UserUPI  @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  upi         String   @unique
+  callbackUrl String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+//It holds UPI pin of User
+model UPIPin {
+  hash      String
+  userId    String   @unique
+  user      UserUPI  @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
